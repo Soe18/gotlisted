@@ -8,6 +8,7 @@
     <welcome-file>default.html</welcome-file>
     <welcome-file>default.jsp</welcome-file>
     <welcome-file>default.htm</welcome-file>
+    <welcome-file>/WEB-INF/index.jsp</welcome-file>
   </welcome-file-list>
   <servlet>
   	<servlet-name>login</servlet-name>
@@ -29,4 +30,80 @@
   	<servlet-name>login</servlet-name>
   	<url-pattern>/login</url-pattern>
   </servlet-mapping>
+  <servlet>
+  	<servlet-name>todolist</servlet-name>
+  	<servlet-class>ToDoList</servlet-class>
+  	<init-param>
+  		<param-name>db_user</param-name>
+  		<param-value>root</param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>db_pswd</param-name>
+  		<param-value></param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>db_url</param-name>
+  		<param-value>localhost:3306/gotlisted</param-value>
+  	</init-param>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>todolist</servlet-name>
+  	<url-pattern>/todolist</url-pattern>
+  </servlet-mapping>
+  <servlet>
+  	<servlet-name>logoff</servlet-name>
+  	<servlet-class>Logoff</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>logoff</servlet-name>
+  	<url-pattern>/logoff</url-pattern>
+  </servlet-mapping>
+  <servlet>
+  	<servlet-name>register</servlet-name>
+  	<servlet-class>Register</servlet-class>
+  	<init-param>
+  		<param-name>db_url</param-name>
+  		<param-value>localhost:3306/gotlisted</param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>db_user</param-name>
+  		<param-value>root</param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>db_pswd</param-name>
+  		<param-value></param-value>
+  	</init-param>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>register</servlet-name>
+  	<url-pattern>/register</url-pattern>
+  </servlet-mapping>
+  <servlet>
+  	<servlet-name>additem</servlet-name>
+  	<servlet-class>AddItem</servlet-class>
+  	<init-param>
+  		<param-name>db_url</param-name>
+  		<param-value>localhost:3306/gotlisted</param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>db_user</param-name>
+  		<param-value>root</param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>db_pswd</param-name>
+  		<param-value></param-value>
+  	</init-param>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>additem</servlet-name>
+  	<url-pattern>/additem</url-pattern>
+  </servlet-mapping>
+  <error-page>
+  	<exception-type>javax.servlet.ServletException</exception-type>
+  	<location>/error.jsp</location>
+  </error-page>
+  <error-page>
+  	<error-code>404</error-code>
+  	<location>/not_found.html</location>
+  </error-page>
 </web-app>

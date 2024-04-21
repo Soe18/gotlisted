@@ -3,9 +3,6 @@
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -15,25 +12,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import gotlisted.ToDoBean;
-import gotlisted.UtilFuncs;
-
 /**
- * Servlet implementation class Login
+ * Servlet implementation class AddItem
  */
-@WebServlet("/Login")
-public class Login extends HttpServlet {
+@WebServlet("/AddItem")
+public class AddItem extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection conn;
 	private String db_url;
 	private String db_user;
 	private String db_pswd;
-	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public Login() {
+    public AddItem() {
         super();
     }
 
@@ -55,48 +48,41 @@ public class Login extends HttpServlet {
 	}
 
 	/**
+	 * messageType:
+	 * 0 --> null
+	 * 1 --> successfully added new todo entry
+	 * 2 --> successfully checked
+	 * 3 --> successfully unchecked
+	 * 4 --> generic error
+	 * 
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		//response.getWriter().append("Served at: ").append(request.getContextPath());
-		//response.setContentType("text/html");
-		
+		String title = request.getParameter("title");
+		String descr = request.getParameter("descr");
 		HttpSession session = request.getSession(false);
 		
-		try {
-			// check if already logged
-			if (session.getAttribute("user_id") == null) { // not logged, let's login
-				String username = request.getParameter("username");
-				
-				String password = UtilFuncs.sha256(request.getParameter("password"));
-				
-				String query = "SELECT id, username, password FROM users WHERE username='"+username+"' AND password='"+password+"'";
-				ResultSet res = conn.createStatement().executeQuery(query);
-				
-				if(res.next()) { // user found
-					session = request.getSession(); // create new session
-					session.setAttribute("user_id", res.getString("id")); // get id
-					session.setAttribute("user_name", res.getString("username")); // get id
-					
-					response.sendRedirect("./");
+		try { // check if okay response, needs to be both logged in and to have typed a title (aka, just have done an input)
+			if (session.getAttribute("user_id") != null && title != null) { // per vedere se utente ha inserito url o ha fatto input comnpleto
+				// add item
+				String query = "INSERT INTO todoitem (title, descr, done, user) VALUES ('"+title+"','"+descr+"', 0, "+session.getAttribute("user_id")+")";
+				int resInt = conn.createStatement().executeUpdate(query);
+				if (resInt==1) { // se va tutto bene, metto messageType a quello giusto e invio richiesta
+					request.setAttribute("messageType", 1);
+					request.getRequestDispatcher("todolist").forward(request, response);
+				} else { // error msg
+					request.setAttribute("messageType", 4);
+					request.getRequestDispatcher("todolist").forward(request, response);
 				}
-				else { // user not found				
-					if (username==null) {
-						request.setAttribute("loginError", false);
-					}
-					else {
-						request.setAttribute("loginError", true);
-					}
-					request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
-				}
-				// ritorniamo nel caso in cui l'utente sia loggato per poter dare i giusti parametri alla pagina
-			} else { // already logged
-				response.sendRedirect("./");
+				
+			} else {
+				response.sendRedirect("./todolist");
 			}
-	
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		
 	}
 

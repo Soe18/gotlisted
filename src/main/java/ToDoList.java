@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.servlet.ServletConfig;
@@ -16,28 +15,27 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import gotlisted.ToDoBean;
-import gotlisted.UtilFuncs;
 
 /**
- * Servlet implementation class Login
+ * Servlet implementation class ToDoList
  */
-@WebServlet("/Login")
-public class Login extends HttpServlet {
+@WebServlet("/ToDoList")
+public class ToDoList extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection conn;
 	private String db_url;
 	private String db_user;
 	private String db_pswd;
-	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public Login() {
+    public ToDoList() {
         super();
+        // TODO Auto-generated constructor stub
     }
-
-	/**
+    
+    /**
 	 * @see Servlet#init(ServletConfig)
 	 */
 	public void init(ServletConfig config) throws ServletException {
@@ -59,45 +57,39 @@ public class Login extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		//response.getWriter().append("Served at: ").append(request.getContextPath());
-		//response.setContentType("text/html");
+		response.setContentType("text/html");
 		
+		// if attribute empty, put 0
+		if (request.getAttribute("messageType")==null) {
+			request.setAttribute("messageType", 0);
+		}
 		HttpSession session = request.getSession(false);
 		
 		try {
-			// check if already logged
-			if (session.getAttribute("user_id") == null) { // not logged, let's login
-				String username = request.getParameter("username");
-				
-				String password = UtilFuncs.sha256(request.getParameter("password"));
-				
-				String query = "SELECT id, username, password FROM users WHERE username='"+username+"' AND password='"+password+"'";
+			if (session.getAttribute("user_id") != null) {
+				// get todolist
+				String query = "SELECT id, title, descr, done, user FROM todoitem WHERE todoitem.user="+session.getAttribute("user_id");
 				ResultSet res = conn.createStatement().executeQuery(query);
 				
-				if(res.next()) { // user found
-					session = request.getSession(); // create new session
-					session.setAttribute("user_id", res.getString("id")); // get id
-					session.setAttribute("user_name", res.getString("username")); // get id
-					
-					response.sendRedirect("./");
+				ArrayList<ToDoBean> todolist = new ArrayList<ToDoBean>(); // creo il bean
+				while(res.next()) { // ad ogni riga nel database, aggiungo un item nella todolist
+					todolist.add(new ToDoBean(res.getInt("id"), res.getString("title"), res.getString("descr"), res.getBoolean("done"), res.getInt("user")));
 				}
-				else { // user not found				
-					if (username==null) {
-						request.setAttribute("loginError", false);
-					}
-					else {
-						request.setAttribute("loginError", true);
-					}
-					request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
-				}
-				// ritorniamo nel caso in cui l'utente sia loggato per poter dare i giusti parametri alla pagina
-			} else { // already logged
-				response.sendRedirect("./");
+				request.setAttribute("todolist", todolist); // imposto come attributo della richiesta la todolist
+				
+				// redirect a todolist.jsp con tutte le informazioni
+				request.getRequestDispatcher("/WEB-INF/todolist.jsp").forward(request, response);
+				//response.getWriter().append("ok");
+			} else { // not logged, redirect to login
+				response.getWriter().append("no");
+				response.sendRedirect("./login");
 			}
-	
-		} catch (SQLException e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 		
+
 	}
 
 	/**
