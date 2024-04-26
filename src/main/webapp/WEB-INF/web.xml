@@ -106,4 +106,24 @@
   	<error-code>404</error-code>
   	<location>/not_found.html</location>
   </error-page>
+  <servlet>
+  	<servlet-name>checkItem</servlet-name>
+  	<servlet-class>CheckItem</servlet-class>
+  	<init-param>
+  		<param-name>db_url</param-name>
+  		<param-value>localhost:3306/gotlisted</param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>db_user</param-name>
+  		<param-value>root</param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>db_pswd</param-name>
+  		<param-value></param-value>
+  	</init-param>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>checkItem</servlet-name>
+  	<url-pattern>/checkItem</url-pattern>
+  </servlet-mapping>
 </web-app>

@@ -31,7 +31,7 @@ public class ToDoBean {
 		this.title = title;
 	}
 	
-	public boolean isDone() {
+	public boolean getDone() {
 		return done;
 	}
 	public void setDone(boolean done) {
