@@ -51,12 +51,12 @@ public class CheckItem extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		String item_checked = request.getParameter("item_check");
 		HttpSession session = request.getSession(false);
+		int integerReturn = 0;
 		
-		try { // check if okay response, needs to be both logged in and to have typed a title (aka, just have done an input)
-			if (session.getAttribute("user_id") != null) { // per vedere se utente ha inserito url o ha fatto input comnpleto
+		try {
+			if (session.getAttribute("user_id") != null && item_checked != null) { // per vedere se utente ha inserito url o ha fatto input comnpleto
 				// control item
 				String select_query = "SELECT done FROM todoitem WHERE id = '"+item_checked+"'";
 				String query = "";
@@ -64,28 +64,29 @@ public class CheckItem extends HttpServlet {
 				
 				if(res.next()) {
 					if(res.getString("done").equals("0")) {
-						query = "UPDATE todoitem SET done = '1' WHERE id = '"+item_checked+"'";
+						integerReturn = 2;
+						query = "UPDATE todoitem SET done = '1' WHERE id = '"+item_checked+"'"; // 1 quindi checked
 					}
 					else {
-						query = "UPDATE todoitem SET done = '0' WHERE id = '"+item_checked+"'";
+						integerReturn = 3;
+						query = "UPDATE todoitem SET done = '0' WHERE id = '"+item_checked+"'"; // 0 quindi unchecked
 					}
 				}
 				
 				int resInt = conn.createStatement().executeUpdate(query);
 					
 				if (resInt==1) { // se va tutto bene, metto messageType a quello giusto e invio richiesta
-					request.setAttribute("messageType", 1);
+					request.setAttribute("messageType", integerReturn);
 					request.getRequestDispatcher("todolist").forward(request, response);
-				} else { // error msg
-					request.setAttribute("messageType", 4);
-					request.getRequestDispatcher("todolist").forward(request, response);
+				} else { // qualcosa è andato storto... qualcuno si sara' divertito con '...
+					throw new ServletException("Impossibile marcare come l'elemento della todolist...");
 				}
 				
 			} else {
 				response.sendRedirect("./todolist");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ServletException("Impossibile marcare come l'elemento della todolist...");
 		}
 	}
 

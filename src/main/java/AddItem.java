@@ -53,8 +53,6 @@ public class AddItem extends HttpServlet {
 	 * 1 --> successfully added new todo entry
 	 * 2 --> successfully checked
 	 * 3 --> successfully unchecked
-	 * 4 --> generic error
-	 * 
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -72,15 +70,14 @@ public class AddItem extends HttpServlet {
 					request.setAttribute("messageType", 1);
 					request.getRequestDispatcher("todolist").forward(request, response);
 				} else { // error msg
-					request.setAttribute("messageType", 4);
-					request.getRequestDispatcher("todolist").forward(request, response);
+					throw new ServletException("Qualcosa è andato storto durante l'aggiunta dell'item.");
 				}
 				
 			} else {
 				response.sendRedirect("./todolist");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ServletException("Qualcosa è andato storto durante l'aggiunta dell'item.");
 		}
 		
 		

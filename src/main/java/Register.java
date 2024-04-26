@@ -86,25 +86,17 @@ public class Register extends HttpServlet {
 							session.setAttribute("user_id", res.getString("id")); // get id
 							session.setAttribute("user_name", res.getString("username")); // get id
 							
-							// TODO: MIGHT CAUSE ERRORS, DIDN'T TRY IT YET
-							
-							response.sendRedirect("/gotlisted/");
+							response.sendRedirect("todolist");
 						}
-						else { // cannot create user			
-							request.setAttribute("registerError", true);
-							request.setAttribute("errorFault", 2);
-							request.getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
+						else { // cannot create user
+							throw new ServletException("Impossibile creare questo utente.<a href='register'>Riprovare</a>");
 						}
 					}
 					else { // password aren't the same
-						request.setAttribute("registerError", true);
-						request.setAttribute("errorFault", 1);
-						request.getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
+						throw new ServletException("Le password non corrispondono.<a href='register'>Riprovare</a>");
 					}
 				}
 				else { // user didn't want to register, not an error
-					request.setAttribute("registerError", false);
-					request.setAttribute("errorFault", 0);
 					request.getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
 				}
 				
@@ -113,7 +105,7 @@ public class Register extends HttpServlet {
 			}
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new ServletException("Errore fatale! Qualcosa è andato veramente storto.");
 		}		
 	}
 

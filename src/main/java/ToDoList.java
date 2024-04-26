@@ -68,7 +68,7 @@ public class ToDoList extends HttpServlet {
 		try {
 			if (session.getAttribute("user_id") != null) {
 				// get todolist
-				String query = "SELECT id, title, descr, done, user FROM todoitem WHERE todoitem.user="+session.getAttribute("user_id");
+				String query = "SELECT id, title, descr, done, user FROM todoitem WHERE todoitem.user="+session.getAttribute("user_id")+" ORDER BY done ASC, id DESC";
 				ResultSet res = conn.createStatement().executeQuery(query);
 				
 				ArrayList<ToDoBean> todolist = new ArrayList<ToDoBean>(); // creo il bean
@@ -81,15 +81,13 @@ public class ToDoList extends HttpServlet {
 				request.getRequestDispatcher("/WEB-INF/todolist.jsp").forward(request, response);
 				//response.getWriter().append("ok");
 			} else { // not logged, redirect to login
-				response.getWriter().append("no");
+				//response.getWriter().append("no");
 				response.sendRedirect("./login");
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			throw new ServletException("Errore fatale, è successo qualcosa di veramente brutto!");
 		}
-		
-
 	}
 
 	/**

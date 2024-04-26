@@ -64,10 +64,10 @@ public class Login extends HttpServlet {
 		HttpSession session = request.getSession(false);
 		
 		try {
+			String username = request.getParameter("username");
+			
 			// check if already logged
-			if (session.getAttribute("user_id") == null) { // not logged, let's login
-				String username = request.getParameter("username");
-				
+			if (session.getAttribute("user_id") == null && username != null) { // not logged, let's login	
 				String password = UtilFuncs.sha256(request.getParameter("password"));
 				
 				String query = "SELECT id, username, password FROM users WHERE username='"+username+"' AND password='"+password+"'";
@@ -78,24 +78,19 @@ public class Login extends HttpServlet {
 					session.setAttribute("user_id", res.getString("id")); // get id
 					session.setAttribute("user_name", res.getString("username")); // get id
 					
-					response.sendRedirect("./");
+					response.sendRedirect("todolist");
 				}
-				else { // user not found				
-					if (username==null) {
-						request.setAttribute("loginError", false);
-					}
-					else {
-						request.setAttribute("loginError", true);
-					}
-					request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+				else { // user not found
+					throw new ServletException("Errore di accesso, utente non trovato. <a href='login'>Riprovare</a>");
 				}
-				// ritorniamo nel caso in cui l'utente sia loggato per poter dare i giusti parametri alla pagina
-			} else { // already logged
+			} else if (username==null) { // sta accedendo al login
+				request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+			} else {
 				response.sendRedirect("./");
 			}
 	
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new ServletException("Errore fatale! Qualcosa è andato veramente storto.");
 		}
 		
 	}
